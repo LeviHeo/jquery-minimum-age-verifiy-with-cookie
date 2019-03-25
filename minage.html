@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script src='//code.jquery.com/jquery-3.3.1.min.js'></script>
+
+    <div id="year-calc">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="text" maxlength="1">
+        <input type="submit" value="ENTER">
+    </div>
+    <div id="year-status"></div>
+    <div id="year-result" style="display:none;"></div>
+
+    <script>
+    $(function(){
+        var calc = $('#year-calc');
+        var calcInput = calc.find('input[type=text]');
+        var statustxt = $('#year-status');
+        var year = "";
+        var age = 19;
+        var txt01 = 'Please enter your year of birth.';
+        var txt02 = 'You are now being redirected back to the application.';
+        var txt03 = 'Sorry, you are not old enough to view this site.';
+
+        function createCookie(name, value, days) {
+            var expires;
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toGMTString();
+            } else {
+                expires = "";
+            }
+            document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+        }
+
+        function readCookie(name) {
+            var nameEQ = encodeURIComponent(name) + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) === ' ')
+                    c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0)
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
+            return null;
+        }
+
+        function eraseCookie(name) {
+            createCookie(name, "", -1);
+        }
+
+        var currentCookie = readCookie('agevali');
+        if(currentCookie=="1"){
+            statustxt.html('Already Checked. Redirect to Website');
+        }else {
+            statustxt.html('Please check your age.');
+        }
+
+        function checkYear(){
+            var userYear = $('#year-result').html();
+            eraseCookie('agevali');
+            if(userYear.length == '4'){
+                var currentYear = new Date().getFullYear();
+                var currentAge = currentYear - userYear;
+                if(currentAge > 99 || currentAge < 10 ) {
+                    statustxt.html('Please input your correct age.');
+                } else {
+                    if(currentAge <= age) {
+                        statustxt.html(txt03);
+                    }else if(currentAge > age) {
+                        statustxt.html(txt02);
+                        createCookie('agevali','1','1');
+                    }
+                }
+            }
+        }
+
+        calcInput.bind('keyup paste', function(){
+            this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+        });
+
+        calcInput.on('keyup', function(){
+            var year = "";
+            calcInput.each(function(){
+                var val = $(this).val();
+                year += val;
+            });
+            $('#year-result').html(year);
+        });
+
+        calcInput.keyup(function () {
+            if (this.value.length == this.maxLength) {
+            var $next = $(this).next('input');
+            if ($next.length)
+                $(this).next('input').focus();
+            else
+                $(this).blur();
+            }
+        });
+
+        calc.find('input[type=submit]').on('click', function(){
+            calcInput.each(function(){
+                if($(this).val()==""){
+                    statustxt.html(txt01);
+                }else{
+                    statustxt.html('');
+                }
+            });
+            checkYear();
+        });
+    })
+    </script>
+
+</body>
+</html>
